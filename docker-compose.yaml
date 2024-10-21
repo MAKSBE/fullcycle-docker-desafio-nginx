@@ -1,39 +1,50 @@
-version: '1'
+version: "3.8"
 
 services:
   nginx:
-    restart: always
     build:
       context: ./nginx
+      dockerfile: Dockerfile.prod
     container_name: nginx
+    restart: always
+    ports:
+      - "8080:80"
     networks:
       - node-network
-    ports:
-      - '8080:80'
     depends_on:
-      - db
+      - app
 
   app:
     build:
       context: ./node
     container_name: app
-    volumes:
-      - /usr/src/app
+    entrypoint:
+      [
+        "dockerize",
+        "-wait",
+        "tcp://db:3306",
+        "-timeout",
+        "30s",
+        "sh",
+        "-c",
+        "npm install && node index.js",
+      ]
     networks:
       - node-network
+    volumes:
+      - ./node:/usr/src/app
     tty: true
     depends_on:
       - db
 
   db:
     image: mysql:5.7
-    command: --init-file /data/application/init.sql
+    command: --innodb-use-native-aio=0
     container_name: db
     restart: always
     tty: true
     volumes:
-      - ./db_mysql:/var/lib/mysql
-      - ./data/init.sql:/data/application/init.sql
+      - ./mysql:/var/lib/mysql
     environment:
       - MYSQL_DATABASE=nodedb
       - MYSQL_ROOT_PASSWORD=root
