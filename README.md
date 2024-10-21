@@ -10,9 +10,7 @@ Ao receber uma requisição, a aplicação deverá:
 3. Apresentar, logo abaixo, uma lista com os registros armazenados no banco de dados.
 
 Para iniciar, execute o comando abaixo usando Docker Compose:
-
 docker-compose up -d
 
-Abra o navegador e acesse o seguinte endereço:
-
+Acesso:
 http://localhost:8080/
